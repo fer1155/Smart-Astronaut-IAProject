@@ -16,7 +16,7 @@ class World:
         (x, y) = new_position
         newPositionOfAstronaut = self.matrix[x][y]
 
-        if newPositionOfAstronaut == 0:  # Empty
+        if newPositionOfAstronaut in [0, 2, 5, 6]:  # Empty
             return 1
         elif newPositionOfAstronaut == 3:  # Rocky-obstacle
             return 3
