@@ -1,4 +1,4 @@
- # Lectura y validación de archivos
+# Lectura y validación de archivos
 
 # Function to load the world from a file
 def load_world_from_file(filename):
@@ -21,21 +21,9 @@ def load_world_from_file(filename):
 
     return matrix
 
-'''
-semantics = {
-    0: 'Empty',
-    1: 'Wall',
-    2: 'Astronaut',
-    3: 'Rocky-obstacle',
-    4: 'Volcanic-obstacle',
-    5: 'Spaceship',
-    6: 'Scientific-sample'
-}
-'''
-
 # Function to parse the world matrix and extract relevant information
 def parse_world(matrix):
-    # Initialize variables to store positions and counts
+    # Initialize variables to store positions
     astronaut_position = None
     spaceship_position = None
     samples = set()
