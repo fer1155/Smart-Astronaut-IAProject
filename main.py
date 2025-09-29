@@ -3,8 +3,9 @@ from input_output import parser
 from model.World import World
 from model.State import State
 from model.GoalTest import is_goal_state
-from model.Node import Node
+from model.node import Node
 from search.uninformed.amplitud import busqueda_por_amplitud
+from search.uninformed.costoUniforme import busqueda_por_costo_uniforme
 import time
 from input_output.report import generate_report
 
@@ -18,11 +19,22 @@ def main():
     # Define the initial state
     initialState = State(initial_astronaut_position)
 
-    # Execute the 'busqueda_por_amplitud' algorithm and time it
+    # Elegir algoritmo
+    print("Seleccione el algoritmo de búsqueda:")
+    print("1. Búsqueda por amplitud")
+    print("2. Búsqueda por costo uniforme")
+    opcion = input("Ingrese 1 o 2: ")
+
     inicio = time.time()
 
-    # Call the search algorithm with the world, initial state, and the goaltest
-    resultado = busqueda_por_amplitud(world, initialState, is_goal_state)
+    if opcion == "1":
+        resultado = busqueda_por_amplitud(world, initialState, is_goal_state)
+    elif opcion == "2":
+        resultado = busqueda_por_costo_uniforme(world, initialState, is_goal_state)
+    else:
+        print("Opción no válida.")
+        return 1
+
     fin = time.time()
     tiempo_transcurrido = fin - inicio
 
@@ -32,5 +44,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    # Run the main program
     main()
