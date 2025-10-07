@@ -1,36 +1,58 @@
-# Define the World class to represent the environment
+# Definition of the World class representing the Mars environment
 class World:
     # Constructor
-    # matrix is a (list of lists)
-    # the initial position of the astronaut is a tuple (x, y)
-    # the position of the spaceship is a tuple (x, y)
-    # samples is a list of tuples [(x1, y1), (x2, y2), ...] to the positions of the samples
-    # obstacles is a list of tuples [(x1, y1), (x2, y2), ...] to the positions of the obstacles
-    def __init__(self, matrix, astronaut_position, spaceship_position, samples, obstacles):
+    # receives:
+    # - The matrix representing the world
+    # - The position of the spaceship
+    # - The set of scientific sample positions
+    def __init__(self, matrix, spaceship_position, samples):
         self.matrix = matrix
-        self.astronaut_position = astronaut_position
         self.spaceship_position = spaceship_position
-        self.samples = set(samples)
-        self.obstacles = set(obstacles)
+        self.samples = samples
     
-    # Method to get the cost of moving to a new position
-    def terrain_cost(self, new_position, spaceship, spaceshipFuel):
-        # If the astronaut is in the spaceship and has fuel, the cost is 0.5
-        if spaceship and spaceshipFuel > 0:
-            return 0.5  # Cost is 0.5 when in spaceship and has fuel
+    # Calculate the cost of moving to a position
+    # receives:
+    # - The position to move to (row, col)
+    # - Whether the astronaut is in the spaceship
+    # - The fuel available
+    # returns the cost of the movement
+    def terrain_cost(self, position, has_spaceship, fuel):
+        # Get the terrain type at the position
+        terrain = self.matrix[position[0]][position[1]]
         
-        # Take the position of the astronaut moved to
-        (x, y) = new_position
-
-        # Get the type of terrain at the new position
-        newPositionOfAstronaut = self.matrix[x][y]
-
-        # Define the cost based on the terrain type
-        if newPositionOfAstronaut in [0, 2, 5, 6]:  # Empty
+        # If the astronaut is in the spaceship and has fuel, cost is 1/2
+        if has_spaceship and fuel > 0:
+            return 0.5
+        
+        # Otherwise, cost depends on terrain type
+        if terrain == 0:  # Free cell
             return 1
-        elif newPositionOfAstronaut == 3:  # Rocky-obstacle
+        elif terrain == 3:  # Rocky terrain
             return 3
-        elif newPositionOfAstronaut == 4:  # Volcanic-obstacle
+        elif terrain == 4:  # Volcanic terrain
             return 5
+        elif terrain == 5:  # Spaceship position
+            return 1
+        elif terrain == 6:  # Sample position
+            return 1
         else:
-            raise ValueError("Terrain cost not defined for this type of cell.")
+            # Should not reach here (obstacle or invalid)
+            return float('inf')
+    
+    # Check if a position is valid (within bounds and not an obstacle)
+    def is_valid_position(self, position):
+        row, col = position
+        # Check bounds
+        if not (0 <= row < len(self.matrix) and 0 <= col < len(self.matrix[0])):
+            return False
+        # Check if it's not an obstacle
+        if self.matrix[row][col] == 1:
+            return False
+        return True
+    
+    # String representation
+    def __str__(self):
+        result = "World:\n"
+        for row in self.matrix:
+            result += " ".join(str(cell) for cell in row) + "\n"
+        return result

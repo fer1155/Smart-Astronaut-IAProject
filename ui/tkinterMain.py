@@ -18,6 +18,20 @@ class MarsExplorerGUI:
         self.selected_file = None
         self.selected_algorithm = None
         self.search_type = tk.StringVar(value="")
+        self.world_data = None  # Almacenar datos parseados del mundo
+        
+        # Variables para la animación
+        self.cell_labels = {}  # Diccionario para guardar referencias a las celdas
+        self.animation_running = False
+        self.current_path = []
+        self.animation_speed = 500  # milisegundos entre movimientos
+        self.collected_samples = set()  # Rastrear muestras recolectadas durante la animación
+        self.collected_samples = set()  # Muestras recolectadas durante la animación
+        
+        # Estadísticas del algoritmo
+        self.nodes_expanded = 0
+        self.tree_depth = 0
+        self.solution_cost = 0
         
         # Estado actual: 'initial' o 'map_loaded'
         self.current_state = 'initial'
@@ -198,8 +212,8 @@ class MarsExplorerGUI:
                 self.world_matrix = self.load_world_from_file(filename)
                 self.selected_file = filename
                 
-                # Validar que el archivo sea correcto
-                self.parse_world(self.world_matrix)
+                # Validar que el archivo sea correcto y guardar los datos parseados
+                self.world_data = self.parse_world(self.world_matrix)
                 
                 # Actualizar label
                 self.file_path_label.config(
@@ -237,6 +251,185 @@ class MarsExplorerGUI:
         
         # Crear la vista del mapa
         self.create_map_view()
+        
+        # Ejecutar el algoritmo de búsqueda (después de un pequeño delay para que se dibuje el mapa)
+        self.root.after(100, self.run_search_algorithm)
+    
+    def run_search_algorithm(self):
+        """Ejecutar el algoritmo de búsqueda seleccionado"""
+        try:
+            # Importar módulos necesarios
+            from model.World import World
+            from model.State import State
+            from model.GoalTest import is_goal_state
+            
+            # Parsear datos del mundo
+            astronaut_pos, spaceship_pos, samples, obstacles = self.world_data
+            
+            # Crear el objeto World
+            world = World(self.world_matrix, spaceship_pos, samples)
+            
+            # Crear el estado inicial
+            initial_state = State(
+                position=astronaut_pos,
+                collected=set(),  # No ha recolectado muestras aún
+                spaceshipFuel=20,  # Combustible inicial
+                spaceship=False  # No está en la nave inicialmente
+            )
+            
+            # Ejecutar el algoritmo seleccionado
+            result = None
+            algorithm_name = self.selected_algorithm
+            
+            if algorithm_name == "Amplitud":
+                from search.uninformed.amplitud import busqueda_por_amplitud
+                result = busqueda_por_amplitud(world, initial_state, is_goal_state)
+            elif algorithm_name == "Costo Uniforme":
+                from search.uninformed.costoUniforme import busqueda_por_costo_uniforme
+                result = busqueda_por_costo_uniforme(world, initial_state, is_goal_state)
+            # elif algorithm_name == "Profundidad (evitando ciclos)":
+            #     from algorithms.uninformed import busqueda_profundidad
+            #     result = busqueda_profundidad(world, initial_state, is_goal_state)
+            # elif algorithm_name == "Avara":
+            #     from algorithms.informed import busqueda_avara
+            #     result = busqueda_avara(world, initial_state, is_goal_state)
+            # elif algorithm_name == "A*":
+            #     from algorithms.informed import busqueda_a_estrella
+            #     result = busqueda_a_estrella(world, initial_state, is_goal_state)
+            
+            # Procesar resultado
+            if result and result[0]:
+                goal_node, nodes_expanded = result
+                
+                # Extraer el camino desde el nodo objetivo
+                path_nodes = goal_node.get_path()
+                path = [node.state.position for node in path_nodes]
+                if goal_node.state.position not in path:
+                    path.append(goal_node.state.position)
+                
+                # Guardar estadísticas para mostrar después
+                self.nodes_expanded = nodes_expanded
+                self.tree_depth = goal_node.depth
+                self.solution_cost = goal_node.cost if hasattr(goal_node, 'cost') else None
+                
+                # Iniciar la animación
+                self.animate_path(path)
+            else:
+                messagebox.showwarning("Sin solución", "No se encontró una solución al problema.")
+            
+        except Exception as e:
+            import traceback
+            error_msg = f"Error al ejecutar el algoritmo:\n{str(e)}\n\n{traceback.format_exc()}"
+            messagebox.showerror("Error", error_msg)
+    
+    def extract_path_from_node(self, goal_node):
+        """Extraer el camino completo desde el nodo inicial hasta el objetivo"""
+        # Tu clase Node ya tiene el método get_path(), úsalo
+        path_nodes = goal_node.get_path()
+        
+        # Extraer solo las posiciones de cada nodo
+        path = [node.state.position for node in path_nodes]
+        
+        # Agregar la posición final si no está incluida
+        if goal_node.state.position not in path:
+            path.append(goal_node.state.position)
+        
+        return path
+    
+    def animate_path(self, path):
+        """Animar el movimiento del astronauta a lo largo del camino"""
+        if not path or len(path) < 1:
+            messagebox.showinfo("Resultado", "No hay camino para animar")
+            return
+        
+        self.current_path = path
+        self.path_index = 0
+        self.animation_running = True
+        self.collected_samples = set()  # Rastrear muestras recolectadas durante la animación
+        
+        # Limpiar la posición inicial del astronauta
+        initial_pos = path[0]
+        if initial_pos in self.cell_labels:
+            cell_frame, cell_label = self.cell_labels[initial_pos]
+            original_val = self.world_matrix[initial_pos[0]][initial_pos[1]]
+            # Cambiar el valor en la matriz para que no vuelva a aparecer el astronauta
+            if original_val == 2:  # Si era la posición del astronauta
+                self.world_matrix[initial_pos[0]][initial_pos[1]] = 0  # Convertir a casilla libre
+        
+        # Iniciar la animación
+        self.animate_next_step()
+    
+    def animate_next_step(self):
+        """Animar el siguiente paso del camino"""
+        if not self.animation_running or self.path_index >= len(self.current_path):
+            self.animation_running = False
+            # Mostrar estadísticas finales
+            stats_msg = f"¡El astronauta ha completado su misión!\n\n"
+            stats_msg += f"Nodos expandidos: {self.nodes_expanded}\n"
+            stats_msg += f"Profundidad del árbol: {self.tree_depth}\n"
+            if self.solution_cost is not None:
+                stats_msg += f"Costo de la solución: {self.solution_cost}"
+            messagebox.showinfo("Completado", stats_msg)
+            return
+        
+        # Obtener la posición actual
+        current_pos = self.current_path[self.path_index]
+        
+        # Verificar si hay una muestra en esta posición y recogerla
+        if current_pos in self.world_data[2] and current_pos not in self.collected_samples:  # world_data[2] son las muestras
+            self.collected_samples.add(current_pos)
+            # Actualizar la matriz para que la muestra desaparezca
+            self.world_matrix[current_pos[0]][current_pos[1]] = 0  # Convertir a casilla libre
+        
+        # Si no es la primera posición, limpiar la anterior
+        if self.path_index > 0:
+            prev_pos = self.current_path[self.path_index - 1]
+            if prev_pos in self.cell_labels:
+                # Obtener el valor original de la celda (puede haber cambiado si era una muestra)
+                prev_val = self.world_matrix[prev_pos[0]][prev_pos[1]]
+                self.update_cell_appearance(prev_pos, prev_val, is_astronaut=False)
+        
+        # Actualizar la celda actual con el astronauta
+        current_val = self.world_matrix[current_pos[0]][current_pos[1]]
+        self.update_cell_appearance(current_pos, current_val, is_astronaut=True)
+        
+        # Incrementar el índice y programar el siguiente paso
+        self.path_index += 1
+        self.root.after(self.animation_speed, self.animate_next_step)
+    
+    def update_cell_appearance(self, pos, original_val, is_astronaut=False):
+        """Actualizar la apariencia visual de una celda"""
+        cell_frame, cell_label = self.cell_labels.get(pos, (None, None))
+        
+        if not cell_frame or not cell_label:
+            return
+        
+        colors = {
+            0: "#2d2d44",      # Libre
+            1: "#1a1a1a",      # Obstáculo
+            2: "#4ecca3",      # Astronauta
+            3: "#8b4513",      # Rocoso
+            4: "#ff6b35",      # Volcánico
+            5: "#00d4ff",      # Nave
+            6: "#e94560"       # Muestra
+        }
+        
+        symbols = {
+            0: "",
+            1: "🪨",
+            2: "👨‍🚀",
+            3: "🪨",
+            4: "🌋",
+            5: "🚀",
+            6: "🧪"
+        }
+        
+        if is_astronaut:
+            # Mostrar el astronauta
+            cell_label.config(text="👨‍🚀", bg=colors.get(original_val, "#2d2d44"))
+        else:
+            # Restaurar el símbolo original
+            cell_label.config(text=symbols.get(original_val, ""), bg=colors.get(original_val, "#2d2d44"))
     
     def create_map_view(self):
         """Crear la vista del mapa con el grid"""
@@ -321,15 +514,17 @@ class MarsExplorerGUI:
                 cell_frame.pack_propagate(False)
                 
                 # Añadir símbolo
-                if symbols[val]:
-                    label = tk.Label(
-                        cell_frame,
-                        text=symbols[val],
-                        font=("Helvetica", 24),
-                        bg=colors[val],
-                        fg="white"
-                    )
-                    label.pack(expand=True)
+                label = tk.Label(
+                    cell_frame,
+                    text=symbols.get(val, ""),
+                    font=("Helvetica", 24),
+                    bg=colors[val],
+                    fg="white"
+                )
+                label.pack(expand=True)
+                
+                # Guardar referencia a la celda para poder actualizarla después
+                self.cell_labels[(i, j)] = (cell_frame, label)
         
         # Leyenda
         self.create_legend(parent)
@@ -378,15 +573,3 @@ class MarsExplorerGUI:
                 fg=color
             )
             text_label.pack(side='left')
-
-
-def main():
-    root = tk.Tk()
-    # Necesitas pasar las funciones aquí también si ejecutas desde este archivo
-    from input_output.parser import load_world_from_file, parse_world
-    app = MarsExplorerGUI(root, load_world_from_file, parse_world)
-    root.mainloop()
-
-
-if __name__ == "__main__":
-    main()
