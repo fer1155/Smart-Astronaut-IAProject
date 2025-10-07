@@ -1,4 +1,4 @@
-# Lectura y validación de archivos
+# Lectura y validación de archivos# Lectura y validación de archivos
 
 # Function to load the world from a file
 def load_world_from_file(filename):

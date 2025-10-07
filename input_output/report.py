@@ -1,5 +1,5 @@
-# Generación de reportes
 
+# Generación de reportes
 # Function to generate a report of the results after the search (amplitud search)
 def generate_report(resultado, tiempo_transcurrido):
     # Unpack the results
