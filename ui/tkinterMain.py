@@ -290,8 +290,9 @@ class MarsExplorerGUI:
             # elif algorithm_name == "Profundidad (evitando ciclos)":
             #     from algorithms.uninformed import busqueda_profundidad
             #     result = busqueda_profundidad(world, initial_state, is_goal_state)
-            # elif algorithm_name == "Avara":
-            #     from algorithms.informed import busqueda_avara
+            elif algorithm_name == "Avara":
+                from search.informed.avara import busqueda_avara
+                result = busqueda_avara(world, initial_state, is_goal_state)
             #     result = busqueda_avara(world, initial_state, is_goal_state)
             # elif algorithm_name == "A*":
             #     from algorithms.informed import busqueda_a_estrella
