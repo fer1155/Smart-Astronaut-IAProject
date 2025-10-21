@@ -2,7 +2,7 @@
 # Importa la clase Node y la heurística Manhattan
 import queue
 import itertools
-from model.Node import Node
+from model.node import Node
 from search.informed.heuristicas import heuristica_manhattan
 from search.informed.heuristicas import heuristica_manhattan_admisible
 

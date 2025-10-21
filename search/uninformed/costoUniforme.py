@@ -1,7 +1,7 @@
 # Algoritmo de búsqueda por costo uniforme
 import queue
 import itertools
-from model.Node import Node
+from model.node import Node
 
 def busqueda_por_costo_uniforme(world, initial_state, goal_test):
     cola = queue.PriorityQueue()

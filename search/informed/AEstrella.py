@@ -1,6 +1,6 @@
 import queue
 import itertools
-from model.Node import Node
+from model.node import Node
 from search.informed.heuristicas import heuristica_manhattan_admisible
 
 def busqueda_a_estrella(world, initial_state, goal_test, heuristic=heuristica_manhattan_admisible):

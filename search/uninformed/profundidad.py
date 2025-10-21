@@ -1,13 +1,13 @@
-# Algoritmo de búsqueda no informada
-import queue
+# Algoritmo de búsqueda no informada - Profundidad evitando ciclos
 from model.node import Node
 
-# Búsqueda por amplitud
+
+# Búsqueda por profundidad evitando ciclos
 # recibe el mundo, el estado inicial y la función de test de meta
 # retorna el nodo objetivo y el número de nodos expandidos
-def busqueda_por_amplitud(world, initial_state, goal_test):
-    # Cola para guardar los nodos por explorar
-    cola = queue.Queue()
+def busqueda_profundidad(world, initial_state, goal_test):
+    # Pila para guardar los nodos por explorar (LIFO)
+    stack = []
 
     # Conjunto para los nodos ya visitados
     visited = set()
@@ -15,8 +15,13 @@ def busqueda_por_amplitud(world, initial_state, goal_test):
     # Nodo inicial
     nodo_inicial = Node(initial_state)
 
-    # Añadir el nodo inicial a la cola
-    cola.put(nodo_inicial)
+    # Verificar si el estado inicial es la meta
+    if goal_test(nodo_inicial.state, world):
+        print("Meta alcanzada!")
+        return [nodo_inicial, 0]
+
+    # Añadir el nodo inicial a la pila
+    stack.append(nodo_inicial)
 
     # Marcar el nodo inicial como visitado
     visited.add(nodo_inicial.state)
@@ -25,36 +30,37 @@ def busqueda_por_amplitud(world, initial_state, goal_test):
     nodecont = 0
 
     # Bucle principal de la búsqueda
-    while not cola.empty():
+    while stack:
 
-        # Obtener el nodo para tratar
-        nodo_actual = cola.get()
+        # Obtener el último nodo de la pila (LIFO - profundidad)
+        nodo_actual = stack.pop()
 
-        # Verificar si el nodo actual es el estado objetivo (meta)
+        # Verificar si el nodo actual es la meta
         if goal_test(nodo_actual.state, world):
-            print("Goal reached!")
+            print("Meta alcanzada!")
             return [nodo_actual, nodecont]
 
         # Expandir el nodo actual
-        nodos_hijos = nodo_actual.expand(world) 
+        nodos_hijos = nodo_actual.expand(world)
 
         # Incrementar el contador de nodos expandidos
         nodecont += 1
-  
+
         # Iterar sobre la cola de nodos hijos vaciándola
         while not nodos_hijos.empty():
             # Obtener el siguiente nodo hijo
             hijo = nodos_hijos.get()
 
             # Si el estado del hijo no ha sido visitado
-            # Se añade a la cola y se marca como visitado
             if not comprobar_estado_visitado(hijo.state, visited):
-                cola.put(hijo)
+                # Marcar como visitado y agregar a la pila
                 visited.add(hijo.state)
+                stack.append(hijo)
 
-    # Si agotamos la cola y no hay solución
+    # Si agotamos la pila y no hay solución
     print("No solution found.")
     return None
+
 
 # Función para comprobar si un estado ha sido visitado
 # Recibe el estado a comprobar y el conjunto de estados visitados
