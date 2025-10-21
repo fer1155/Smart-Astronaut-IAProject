@@ -2,8 +2,9 @@
 # Importa la clase Node y la heurística Manhattan
 import queue
 import itertools
-from model.node import Node
+from model.Node import Node
 from search.informed.heuristicas import heuristica_manhattan
+from search.informed.heuristicas import heuristica_manhattan_admisible
 
 def busqueda_avara(world, initial_state, goal_test, heuristic=heuristica_manhattan):
     """
