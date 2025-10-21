@@ -1,6 +1,6 @@
 # Algoritmo de búsqueda no informada
 import queue
-from model.node import Node
+from model.Node import Node
 
 # Búsqueda por amplitud
 # recibe el mundo, el estado inicial y la función de test de meta
