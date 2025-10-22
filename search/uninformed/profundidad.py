@@ -23,9 +23,6 @@ def busqueda_profundidad(world, initial_state, goal_test):
     # Añadir el nodo inicial a la pila
     stack.append(nodo_inicial)
 
-    # Marcar el nodo inicial como visitado
-    visited.add(nodo_inicial.state)
-
     # Contador de nodos expandidos
     nodecont = 0
 
@@ -34,6 +31,13 @@ def busqueda_profundidad(world, initial_state, goal_test):
 
         # Obtener el último nodo de la pila (LIFO - profundidad)
         nodo_actual = stack.pop()
+
+        # Verificar si ya fue visitado (evitar ciclos)
+        if comprobar_estado_visitado(nodo_actual.state, visited):
+            continue
+
+        # Marcar el nodo actual como visitado DESPUÉS de extraerlo y verificar que no es visitado
+        visited.add(nodo_actual.state)
 
         # Verificar si el nodo actual es la meta
         if goal_test(nodo_actual.state, world):
@@ -51,10 +55,9 @@ def busqueda_profundidad(world, initial_state, goal_test):
             # Obtener el siguiente nodo hijo
             hijo = nodos_hijos.get()
 
-            # Si el estado del hijo no ha sido visitado
+            # Agregar a la pila solo si no ha sido visitado
+            # La verificación de visitados se hará al extraerlo de la pila
             if not comprobar_estado_visitado(hijo.state, visited):
-                # Marcar como visitado y agregar a la pila
-                visited.add(hijo.state)
                 stack.append(hijo)
 
     # Si agotamos la pila y no hay solución
@@ -65,9 +68,15 @@ def busqueda_profundidad(world, initial_state, goal_test):
 # Función para comprobar si un estado ha sido visitado
 # Recibe el estado a comprobar y el conjunto de estados visitados
 # Retorna True si el estado ha sido visitado, False en caso contrario
+# Para evitar ciclos en DFS, comparamos posición, nave y muestras, pero NO el combustible
 def comprobar_estado_visitado(estado, visitados):
     # Itera sobre los estados visitados y compara con el estado actual
     for visitado in visitados:
-        if estado.equal(visitado):
+        # Comparar sin considerar el combustible exacto para evitar ciclos
+        if (
+            estado.position == visitado.position
+            and estado.collected == visitado.collected
+            and estado.spaceship == visitado.spaceship
+        ):
             return True
     return False
