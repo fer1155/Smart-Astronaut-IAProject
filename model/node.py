@@ -25,9 +25,10 @@ class Node:
         # queue (cola) for child nodes
         children = queue.Queue()
 
-        # Possible movements: up, down, left, right
+        # Possible movements in reverse order for DFS (down, right, left, up)
+        # So when popped from stack in DFS, they are processed as: up, left, right, down
         # if the move is valid (within bounds and not an obstacle), create a new state and a new node
-        for move in [Action.up, Action.down, Action.left, Action.right]:
+        for move in [Action.right, Action.down, Action.left, Action.up]:
             # Calculate the new position to the astronaut moving in the specified direction (Moverse)
             newPosition = (self.state.position[0] + move[0], self.state.position[1] + move[1])
 
