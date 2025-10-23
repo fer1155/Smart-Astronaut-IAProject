@@ -5,8 +5,8 @@ class Action:
     left = (0, -1)
     right = (0, 1)
 
-    # List of all possible actions
-    all_actions = [up, down, left, right]
+    # List of all possible actions (orden estándar para DFS: up, left, down, right)
+    all_actions = [up, left, down, right]
     
     # Dictionary to convert action tuples to names
     action_names = {
