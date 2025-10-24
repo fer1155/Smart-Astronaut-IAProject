@@ -20,7 +20,8 @@ class World:
         # Get the terrain type at the position
         terrain = self.matrix[position[0]][position[1]]
         
-        # If the astronaut is in the spaceship and has fuel, cost is 1/2
+        # If the astronaut is in the spaceship and has fuel, cost is always 0.5
+        # regardless of terrain type (the spaceship protects from terrain difficulties)
         if has_spaceship and fuel > 0:
             return 0.5
         
@@ -36,7 +37,7 @@ class World:
         elif terrain == 6:  # Sample position
             return 1
         else:
-            # Should not reach here (obstacle or invalid)
+            # Obstacle or invalid
             return float('inf')
     
     # Check if a position is valid (within bounds and not an obstacle)

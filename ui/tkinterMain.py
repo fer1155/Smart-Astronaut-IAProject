@@ -609,6 +609,7 @@ class MarsExplorerGUI:
         self.nodes_expanded = 0
         self.tree_depth = 0
         self.solution_cost = 0
+        self.execution_time = 0
 
         # Estado actual
         self.current_state = "initial"
@@ -849,6 +850,8 @@ class MarsExplorerGUI:
 
     def run_search_algorithm(self):
         """Ejecutar el algoritmo de búsqueda seleccionado"""
+        import time
+        
         try:
             from model.World import World
             from model.State import State
@@ -866,6 +869,9 @@ class MarsExplorerGUI:
 
             result = None
             algorithm_name = self.selected_algorithm
+
+            # Iniciar medición del tiempo
+            start_time = time.time()
 
             if algorithm_name == "Amplitud":
                 from search.uninformed.amplitud import busqueda_por_amplitud
@@ -889,6 +895,10 @@ class MarsExplorerGUI:
                 from search.informed.AEstrella import busqueda_a_estrella
 
                 result = busqueda_a_estrella(world, initial_state, is_goal_state)
+
+            # Finalizar medición del tiempo
+            end_time = time.time()
+            self.execution_time = end_time - start_time
 
             if result and result[0]:
                 goal_node, nodes_expanded = result
@@ -1002,7 +1012,8 @@ class MarsExplorerGUI:
         stats_text = f"Nodos expandidos: {self.nodes_expanded}\n"
         stats_text += f"Profundidad del árbol: {self.tree_depth}\n"
         if self.solution_cost is not None:
-            stats_text += f"Costo de la solución: {self.solution_cost}"
+            stats_text += f"Costo de la solución: {self.solution_cost}\n"
+        stats_text += f"Tiempo de ejecución: {self.execution_time:.4f} segundos"
 
         stats_label = tk.Label(
             content_frame,
