@@ -44,17 +44,23 @@ class Node:
             samples_collected = self.state.collected.copy()
             if newPosition in world.samples:
                 # Verify if the sample has not been collected yet
-                if not (self.state.collected in world.samples):
+                if newPosition not in self.state.collected:
                     samples_collected.add(newPosition)
             
-
-            # Update spaceship fuel and status (NO SE SI FUNCIONA BIEN)
-            new_spaceshipFuel = max(0, self.state.spaceshipFuel - 1) if self.state.spaceship else self.state.spaceshipFuel
-            is_spaceship = (newPosition == world.spaceship_position) or (self.state.spaceship and new_spaceshipFuel > 0)
-
-            # If the astronaut is in the spaceship, update its position in the world
-            if is_spaceship and new_spaceshipFuel > 0:
-                world.spaceship_position = newPosition
+            # Update spaceship fuel and status
+            # Si el astronauta llega a la posición de la nave, "sube" a ella
+            if newPosition == world.spaceship_position:
+                # Al llegar a la nave, la toma con combustible completo
+                new_spaceshipFuel = 20
+                is_spaceship = True
+            elif self.state.spaceship and self.state.spaceshipFuel > 0:
+                # Si ya está en la nave, consume combustible
+                new_spaceshipFuel = self.state.spaceshipFuel - 1
+                is_spaceship = True
+            else:
+                # No tiene nave o se quedó sin combustible
+                new_spaceshipFuel = 0
+                is_spaceship = False
 
             # Create the new state
             new_state = State(newPosition, samples_collected, new_spaceshipFuel, is_spaceship)
