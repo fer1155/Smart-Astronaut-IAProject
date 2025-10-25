@@ -3,7 +3,7 @@ import queue
 from model.node import Node
 
 # Búsqueda por amplitud
-# recibe el mundo, el estado inicial y la función de test de meta
+# recibe el mundo, el estado inicial y la funcion de test de meta
 # retorna el nodo objetivo y el número de nodos expandidos
 def busqueda_por_amplitud(world, initial_state, goal_test):
     # Cola para guardar los nodos por explorar
@@ -41,7 +41,7 @@ def busqueda_por_amplitud(world, initial_state, goal_test):
         # Incrementar el contador de nodos expandidos
         nodecont += 1
   
-        # Iterar sobre la cola de nodos hijos vaciándola
+        # Iterar sobre la cola de nodos hijos vaciandola
         while not nodos_hijos.empty():
             # Obtener el siguiente nodo hijo
             hijo = nodos_hijos.get()
@@ -52,11 +52,11 @@ def busqueda_por_amplitud(world, initial_state, goal_test):
                 cola.put(hijo)
                 visited.add(hijo.state)
 
-    # Si agotamos la cola y no hay solución
+    # Si agotamos la cola y no hay solucion
     print("No solution found.")
     return None
 
-# Función para comprobar si un estado ha sido visitado
+# Funcion para comprobar si un estado ha sido visitado
 # Recibe el estado a comprobar y el conjunto de estados visitados
 # Retorna True si el estado ha sido visitado, False en caso contrario
 def comprobar_estado_visitado(estado, visitados):

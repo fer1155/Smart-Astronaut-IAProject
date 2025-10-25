@@ -1,9 +1,9 @@
 
-# Heurística de distancia Manhattan para el problema del astronauta
+# Heuristica de distancia Manhattan para el problema del astronauta
 
 
 def heuristica_manhattan(state, world):
-    # Ejemplo: distancia a la muestra más cercana
+    # Ejemplo: distancia a la muestra mas cercana
     astronauta = state.position
     muestras_restantes = [pos for pos in world.samples if pos not in state.collected]
     if not muestras_restantes:
@@ -13,16 +13,16 @@ def heuristica_manhattan(state, world):
 
 def heuristica_manhattan_admisible(state, world):
     """
-    Heurística Manhattan/2 (admisible)
-    Calcula una estimación del costo restante desde la posición actual del astronauta
+    Heuristica Manhattan/2 (admisible)
+    Calcula una estimacion del costo restante desde la posicion actual del astronauta
     hasta el objetivo (recolectar todas las muestras y/o llegar a la nave).
 
-    Parámetros:
+    Parametros:
     - state: Estado actual (objeto State)
     - world: Mundo actual (objeto World)
 
     Retorna:
-    - Un valor numérico con la estimación heurística.
+    - Un valor numerico con la estimacion heuristica.
     """
 
     # Si ya se recolectaron todas las muestras, la meta es la nave
@@ -31,7 +31,7 @@ def heuristica_manhattan_admisible(state, world):
         return (abs(state.position[0] - goal[0]) + abs(state.position[1] - goal[1])) / 2
 
     # Si faltan muestras por recolectar:
-    # Se toma la muestra más cercana como referencia para estimar la distancia
+    # Se toma la muestra mas cercana como referencia para estimar la distancia
     remaining_samples = [s for s in world.samples if s not in state.collected]
     
     if not remaining_samples:
@@ -43,5 +43,5 @@ def heuristica_manhattan_admisible(state, world):
         for sample in remaining_samples
     ]
     
-    # Usa la menor distancia / 2 como estimación admisible
+    # Usa la menor distancia / 2 como estimacion admisible
     return min(distances) / 2

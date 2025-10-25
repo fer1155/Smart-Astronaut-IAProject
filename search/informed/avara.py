@@ -1,29 +1,29 @@
 
-# Importa la clase Node y la heurística Manhattan
+# Importa la clase Node y la heuristica Manhattan
 import queue
 import itertools
 from model.node import Node
 from search.informed.heuristicas import heuristica_manhattan
 from search.informed.heuristicas import heuristica_manhattan_admisible
 
-def busqueda_avara(world, initial_state, goal_test, heuristic=heuristica_manhattan_admisible):
+def busqueda_avara(world, initial_state, goal_test, heuristic=heuristica_manhattan):
     """
-    Algoritmo de búsqueda avara (Greedy Best-First Search).
-    Expande siempre el nodo que parece estar más cerca del objetivo según la heurística.
+    Algoritmo de busqueda avara (Greedy Best-First Search).
+    Expande siempre el nodo que parece estar mas cerca del objetivo segun la heuristica.
     """
-    cola = queue.PriorityQueue()  # Cola de prioridad para seleccionar el nodo con menor heurística
+    cola = queue.PriorityQueue()  # Cola de prioridad para seleccionar el nodo con menor heuristica
     visitados = set()             # Conjunto de estados ya visitados
-    counter = itertools.count()   # Contador incremental para desempatar si hay heurísticas iguales
+    counter = itertools.count()   # Contador incremental para desempatar si hay heuristicas iguales
 
-    nodo_inicial = Node(initial_state)  # Nodo raíz
-    # Se inserta el nodo inicial en la cola con su valor heurístico
+    nodo_inicial = Node(initial_state)  # Nodo raiz
+    # Se inserta el nodo inicial en la cola con su valor heuristico
     cola.put((heuristic(nodo_inicial.state, world), next(counter), nodo_inicial))
     visitados.add(nodo_inicial.state)
 
     nodecont = 0  # Contador de nodos expandidos
 
     while not cola.empty():
-        # Extrae el nodo con menor valor heurístico
+        # Extrae el nodo con menor valor heuristico
         _, _, nodo_actual = cola.get()
 
         # Si el nodo actual es objetivo, retorna la solución
@@ -40,7 +40,7 @@ def busqueda_avara(world, initial_state, goal_test, heuristic=heuristica_manhatt
             hijo = nodos_hijos.get()
             # Si el estado del hijo no ha sido visitado
             if not comprobar_estado_visitado(hijo.state, visitados):
-                # Calcula la heurística y lo agrega a la cola
+                # Calcula la heuristica y lo agrega a la cola
                 cola.put((heuristic(hijo.state, world), next(counter), hijo))
                 visitados.add(hijo.state)
 
