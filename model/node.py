@@ -47,23 +47,46 @@ class Node:
                 if newPosition not in self.state.collected:
                     samples_collected.add(newPosition)
             
+            # # Update spaceship fuel and status
+            # # Si el astronauta llega a la posición de la nave, "sube" a ella
+            # if newPosition == world.spaceship_position:
+            #     # Al llegar a la nave, la toma con combustible completo
+            #     new_spaceshipFuel = 20
+            #     is_spaceship = True
+            # elif self.state.spaceship and self.state.spaceshipFuel > 0:
+            #     # Si ya está en la nave, consume combustible
+            #     new_spaceshipFuel = self.state.spaceshipFuel - 1
+            #     is_spaceship = True
+            # else:
+            #     # No tiene nave o se quedó sin combustible
+            #     new_spaceshipFuel = 0
+            #     is_spaceship = False
+             
+            # SOLUTION FIX ----------------------------------------------------------------            
             # Update spaceship fuel and status
             # Si el astronauta llega a la posición de la nave, "sube" a ella
             if newPosition == world.spaceship_position:
-                # Al llegar a la nave, la toma con combustible completo
-                new_spaceshipFuel = 20
+                if not self.state.spaceship_taken:
+                    new_spaceshipFuel = 20
+                    spaceship_taken = True
+                else:
+                    new_spaceshipFuel = self.state.spaceshipFuel
+                    spaceship_taken = self.state.spaceship_taken
                 is_spaceship = True
+             # -----------------------------------------------------------------------------
             elif self.state.spaceship and self.state.spaceshipFuel > 0:
                 # Si ya está en la nave, consume combustible
                 new_spaceshipFuel = self.state.spaceshipFuel - 1
+                spaceship_taken = self.state.spaceship_taken
                 is_spaceship = True
             else:
                 # No tiene nave o se quedó sin combustible
                 new_spaceshipFuel = 0
                 is_spaceship = False
+                spaceship_taken = self.state.spaceship_taken
 
             # Create the new state
-            new_state = State(newPosition, samples_collected, new_spaceshipFuel, is_spaceship)
+            new_state = State(newPosition, samples_collected, new_spaceshipFuel, is_spaceship, spaceship_taken)
 
             # Calculate the cost of the move (Calcular el costo del movimiento)
             move_cost = world.terrain_cost(newPosition, self.state.spaceship, self.state.spaceshipFuel)
