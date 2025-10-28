@@ -6,7 +6,7 @@ from model.node import Node
 from search.informed.heuristicas import heuristica_manhattan
 from search.informed.heuristicas import heuristica_manhattan_admisible
 
-def busqueda_avara(world, initial_state, goal_test, heuristic=heuristica_manhattan_admisible):
+def busqueda_avara(world, initial_state, goal_test, heuristic=heuristica_manhattan):
     """
     Algoritmo de búsqueda avara (Greedy Best-First Search).
     Expande siempre el nodo que parece estar más cerca del objetivo según la heurística.

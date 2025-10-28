@@ -23,6 +23,8 @@ def busqueda_a_estrella(world, initial_state, goal_test, heuristic=heuristica_ma
 
         if goal_test(nodo_actual.state, world):
             print("Goal reached!")
+            #for step in nodo_actual.get_path():
+            #    print(step.state.spaceshipFuel)
             return [nodo_actual, nodecont]
 
         nodos_hijos = nodo_actual.expand(world)
