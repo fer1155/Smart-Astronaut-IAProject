@@ -2,15 +2,15 @@ from model.State import State
 from model.Action import Action
 import queue
 
-# Definition of a node in the search tree
+# Definición de un nodo en el árbol de búsqueda
 class Node:
     # Constructor
-    # receives: 
-    # - The current state of the problem
-    # - A reference to the parent node
-    # - The action that was applied to generate the node
-    # - Depth in the tree
-    # - The cost of the path from the root to the node
+    # Recibe:
+    # - El estado actual del problema
+    # - Una referencia al nodo padre
+    # - La acción que se aplicó para generar el nodo
+    # - Profundidad en el árbol
+    # - El costo del camino desde la raíz hasta el nodo
     def __init__(self, state, parent=None, action=None, depth=0, cost=0):
         self.state = state  
         self.parent = parent
@@ -18,21 +18,20 @@ class Node:
         self.depth = depth
         self.cost = cost
 
-    # Expands the node to generate its children
-    # receives the current node and the world to check for valid moves
-    # returns a list of child nodes
+    # Expande el nodo para generar sus hijos
+    # recibe el nodo actual y el mundo para verificar movimientos válidos
+    # retorna una cola de nodos hijos
     def expand(self, world):
-        # queue (cola) for child nodes
+        # Cola para nodos hijos
         children = queue.Queue()
 
-        # Possible movements in reverse order for DFS (down, right, left, up)
-        # So when popped from stack in DFS, they are processed as: up, left, right, down
-        # if the move is valid (within bounds and not an obstacle), create a new state and a new node
+        # Si el movimiento es válido (dentro de los límites y no un obstáculo), crear un nuevo estado y un nuevo nodo
+        # Sino, ignorar ese movimiento
         for move in [Action.right, Action.down, Action.left, Action.up]:
-            # Calculate the new position to the astronaut moving in the specified direction (Moverse)
+            # Calcular la nueva posición del astronauta al moverse en la dirección especificada (Moverse)
             newPosition = (self.state.position[0] + move[0], self.state.position[1] + move[1])
 
-            # Check if new position is within bounds and not an obstacle (Verificar si es movimiento válido)
+            # Verificar si la nueva posición está dentro de los límites y no es un obstáculo (Verificar si es movimiento válido)
             if not (0 <= newPosition[0] < len(world.matrix) and 
                     0 <= newPosition[1] < len(world.matrix[0])):
                  continue
@@ -40,61 +39,55 @@ class Node:
             if world.matrix[newPosition[0]][newPosition[1]] == 1:
                 continue
 
-            # Update collected samples if a sample is at the new position (Recolectar muestra)
+            # Actualizar las muestras recogidas si hay una muestra en la nueva posición (Recolectar muestra)
             samples_collected = self.state.collected.copy()
             if newPosition in world.samples:
-                # Verify if the sample has not been collected yet
+                # Verificar si la muestra no ha sido recogida aún
                 if newPosition not in self.state.collected:
                     samples_collected.add(newPosition)
-            
-            # # Update spaceship fuel and status
-            # # Si el astronauta llega a la posición de la nave, "sube" a ella
-            # if newPosition == world.spaceship_position:
-            #     # Al llegar a la nave, la toma con combustible completo
-            #     new_spaceshipFuel = 20
-            #     is_spaceship = True
-            # elif self.state.spaceship and self.state.spaceshipFuel > 0:
-            #     # Si ya está en la nave, consume combustible
-            #     new_spaceshipFuel = self.state.spaceshipFuel - 1
-            #     is_spaceship = True
-            # else:
-            #     # No tiene nave o se quedó sin combustible
-            #     new_spaceshipFuel = 0
-            #     is_spaceship = False
-             
-            # SOLUTION FIX ----------------------------------------------------------------            
-            # Update spaceship fuel and status
-            # Si el astronauta llega a la posición de la nave, "sube" a ella
+
+            # SOLUTION FIX ----------------------------------------------------------------
+            # Actualizar el combustible y estado de la nave
+
+            # Si el astronauta se mueve hacia la posición de la nave
             if newPosition == world.spaceship_position:
+                # Caso 1: llega a la nave por primera vez → la toma y recarga combustible
                 if not self.state.spaceship_taken:
-                    new_spaceshipFuel = 20
-                    spaceship_taken = True
+                    new_spaceshipFuel = 20 # Combustible completo al abordar
+                    spaceship_taken = True # Marca que la nave ya fue tomada
+                # Caso 2: ya había tomado la nave y vuelve a pasar por ella
                 else:
-                    new_spaceshipFuel = self.state.spaceshipFuel
-                    spaceship_taken = self.state.spaceship_taken
-                is_spaceship = True
-             # -----------------------------------------------------------------------------
+                    # Si aún tiene combustible, sigue consumiendo al moverse
+                    if self.state.spaceshipFuel > 0:
+                        new_spaceshipFuel = self.state.spaceshipFuel - 1
+                     # Si ya no tiene combustible, no puede gastar más
+                    else:
+                        new_spaceshipFuel = 0
+                    spaceship_taken = True # Mantiene el estado de “nave tomada”
+                is_spaceship = True # Indica que está dentro de la nave
+            
+            # Si ya está en la nave y tiene combustible, se mueve consumiéndolo normalmente
             elif self.state.spaceship and self.state.spaceshipFuel > 0:
-                # Si ya está en la nave, consume combustible
                 new_spaceshipFuel = self.state.spaceshipFuel - 1
                 spaceship_taken = self.state.spaceship_taken
                 is_spaceship = True
+
+            # En cualquier otro caso (sin nave o sin combustible), se mueve a pie
             else:
-                # No tiene nave o se quedó sin combustible
                 new_spaceshipFuel = 0
                 is_spaceship = False
                 spaceship_taken = self.state.spaceship_taken
 
-            # Create the new state
+            # Crear el nuevo estado
             new_state = State(newPosition, samples_collected, new_spaceshipFuel, is_spaceship, spaceship_taken)
 
-            # Calculate the cost of the move (Calcular el costo del movimiento)
+            # Calcular el costo del movimiento
             move_cost = world.terrain_cost(newPosition, self.state.spaceship, self.state.spaceshipFuel)
 
-            # Create child node
+            # Crear el nodo hijo
             child_node = Node(new_state, self, move, self.depth + 1, self.cost + move_cost)
 
-            # Add child node to the list
+            # Agregar el nodo hijo a la lista
             children.put(child_node)
         return children
     
