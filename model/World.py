@@ -28,6 +28,10 @@ class World:
         # Otherwise, cost depends on terrain type
         if terrain == 0:  # Free cell
             return 1
+        # SOLUTION FIX ----------------------------------------------------------------
+        elif terrain == 2:  # Si es el astronauta (tierra normal)
+            return 1
+        # -----------------------------------------------------------------------------
         elif terrain == 3:  # Rocky terrain
             return 3
         elif terrain == 4:  # Volcanic terrain

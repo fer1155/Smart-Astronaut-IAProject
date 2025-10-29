@@ -6,11 +6,14 @@ class State:
     # - The set of collected scientific samples (positions)
     # - The fuel available for the spaceship
     # - If the spaceship has been reached
-    def __init__(self, position, collected = set(), spaceshipFuel = 20, spaceship = False):
+    def __init__(self, position, collected = set(), spaceshipFuel = 20, spaceship = False, spaceship_taken=False):
         self.position = position 
         self.collected = set(collected)  
         self.spaceshipFuel = spaceshipFuel  
-        self.spaceship = spaceship  
+        self.spaceship = spaceship
+        # SOLUTION FIX ----------------------------------------------------------------  
+        self.spaceship_taken = spaceship_taken
+        # -----------------------------------------------------------------------------
 
     # Method to compare two states, for checking if they are the same to avoid cycles, 
     # Two states are equal if they have the same position, collected samples, spaceship status, and fuel
