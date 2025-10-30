@@ -5,7 +5,7 @@ from model.node import Node
 
 def busqueda_por_costo_uniforme(world, initial_state, goal_test):
     """
-    Búsqueda por costo uniforme que garantiza encontrar la solución óptima.
+    Búsqueda por costo uniforme que garantiza encontrar la solucion optima.
     Expande siempre el nodo con menor costo acumulado.
     """
     cola = queue.PriorityQueue()
@@ -26,7 +26,7 @@ def busqueda_por_costo_uniforme(world, initial_state, goal_test):
         
         visitados.add(nodo_actual.state)
 
-        # Verificar si alcanzó el objetivo
+        # Verificar si alcanzo el objetivo
         if goal_test(nodo_actual.state, world):
             print("Goal reached!")
             return [nodo_actual, nodecont]
@@ -37,7 +37,7 @@ def busqueda_por_costo_uniforme(world, initial_state, goal_test):
 
         while not nodos_hijos.empty():
             hijo = nodos_hijos.get()
-            # Agregar a la cola si no ha sido expandido aún
+            # Agregar a la cola si no ha sido expandido aun
             if not comprobar_estado_visitado(hijo.state, visitados):
                 cola.put((hijo.cost, next(counter), hijo))
 

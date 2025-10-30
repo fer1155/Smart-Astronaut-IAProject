@@ -1,10 +1,10 @@
-# Algoritmo de búsqueda no informada - Profundidad evitando ciclos
+# Algoritmo de busqueda no informada - Profundidad evitando ciclos
 from model.node import Node
 
 
-# Búsqueda por profundidad evitando ciclos
-# recibe el mundo, el estado inicial y la función de test de meta
-# retorna el nodo objetivo y el número de nodos expandidos
+# Busqueda por profundidad evitando ciclos
+# recibe el mundo, el estado inicial y la funcion de test de meta
+# retorna el nodo objetivo y el numero de nodos expandidos
 def busqueda_profundidad(world, initial_state, goal_test):
     # Pila para guardar los nodos por explorar (LIFO)
     stack = []
@@ -26,17 +26,17 @@ def busqueda_profundidad(world, initial_state, goal_test):
     # Contador de nodos expandidos
     nodecont = 0
 
-    # Bucle principal de la búsqueda
+    # Bucle principal de la busqueda
     while stack:
 
-        # Obtener el último nodo de la pila (LIFO - profundidad)
+        # Obtener el ultimo nodo de la pila (LIFO - profundidad)
         nodo_actual = stack.pop()
 
         # Verificar si ya fue visitado (evitar ciclos)
         if comprobar_estado_visitado(nodo_actual.state, visited):
             continue
 
-        # Marcar el nodo actual como visitado DESPUÉS de extraerlo y verificar que no es visitado
+        # Marcar el nodo actual como visitado DESPUES de extraerlo y verificar que no es visitado
         visited.add(nodo_actual.state)
 
         # Verificar si el nodo actual es la meta
@@ -50,25 +50,25 @@ def busqueda_profundidad(world, initial_state, goal_test):
         # Incrementar el contador de nodos expandidos
         nodecont += 1
 
-        # Iterar sobre la cola de nodos hijos vaciándola
+        # Iterar sobre la cola de nodos hijos vaciandola
         while not nodos_hijos.empty():
             # Obtener el siguiente nodo hijo
             hijo = nodos_hijos.get()
 
             # Agregar a la pila solo si no ha sido visitado
-            # La verificación de visitados se hará al extraerlo de la pila
+            # La verificacion de visitados se hara al extraerlo de la pila
             if not comprobar_estado_visitado(hijo.state, visited):
                 stack.append(hijo)
 
-    # Si agotamos la pila y no hay solución
+    # Si agotamos la pila y no hay solucion
     print("No solution found.")
     return None
 
 
-# Función para comprobar si un estado ha sido visitado
+# Funcion para comprobar si un estado ha sido visitado
 # Recibe el estado a comprobar y el conjunto de estados visitados
 # Retorna True si el estado ha sido visitado, False en caso contrario
-# Para evitar ciclos en DFS, comparamos posición, nave y muestras, pero NO el combustible
+# Para evitar ciclos en DFS, comparamos posicion, nave y muestras, pero NO el combustible
 def comprobar_estado_visitado(estado, visitados):
     # Itera sobre los estados visitados y compara con el estado actual
     for visitado in visitados:
